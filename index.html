@@ -356,7 +356,7 @@
         <line x1="228" y1="450" x2="272" y2="450" stroke="${c}" stroke-width="3"/>
         
         <!-- 3-point line - tighter arc, corner lines further in -->
-        <path d="M 85 450 L 85 330 Q 85 170 250 150 Q 415 170 415 330 L 415 450" fill="none" stroke="${c}" stroke-width="2"/>
+        <path d="M 100 450 L 100 350 Q 100 180 250 160 Q 400 180 400 350 L 400 450" fill="none" stroke="${c}" stroke-width="2"/> 415 330 L 415 450" fill="none" stroke="${c}" stroke-width="2"/>
         
         <!-- Baseline -->
         <line x1="25" y1="450" x2="475" y2="450" stroke="${c}" stroke-width="2"/>
@@ -375,10 +375,9 @@
       shotsGroup.innerHTML = '';
       
       shots.forEach((shot) => {
-        // LOC_X: -250 to 250 → map to 30 to 470 (440px range)
-        // LOC_Y: 0 to ~400 → map to 450 down to 50 (400px range)
-        const x = 250 + (shot.LOC_X * 0.88);
-        const y = 437 - (shot.LOC_Y * 0.95);
+        // Spread shots out more to match court lines
+        const x = 250 + (shot.LOC_X * 0.95);
+        const y = 437 - (shot.LOC_Y * 1.0);
         
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         circle.setAttribute('cx', x);
