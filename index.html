@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WNBA Shot Charts</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      color: white;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      text-align: center;
+      padding: 30px 0;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #f59e0b, #ef4444);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      color: #9ca3af;
+      font-size: 1rem;
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    
+    .player-btn {
+      padding: 12px 24px;
+      border: 2px solid #374151;
+      background: #1f2937;
+      color: #d1d5db;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .player-btn:hover {
+      border-color: #f59e0b;
+      color: #f59e0b;
+    }
+    
+    .player-btn.active {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border-color: #f59e0b;
+      color: #1a1a2e;
+    }
+    
+    .chart-container {
+      background: #1f2937;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .player-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .player-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    
+    .player-season {
+      color: #9ca3af;
+      font-size: 1rem;
+    }
+    
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin: 20px 0;
+    }
+    
+    .stat {
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    
+    .stat-value.made { color: #22c55e; }
+    .stat-value.missed { color: #ef4444; }
+    .stat-value.pct { color: #f59e0b; }
+    
+    .stat-label {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .court-wrapper {
+      display: flex;
+      justify-content: center;
+    }
+    
+    .court {
+      background: #92400e;
+      border-radius: 10px;
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      aspect-ratio: 500 / 470;
+    }
+    
+    .court svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 20px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: #d1d5db;
+    }
+    
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    .legend-dot.made { background: #22c55e; }
+    .legend-dot.missed { background: #ef4444; }
+    
+    .tooltip {
+      position: fixed;
+      background: #374151;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    
+    .tooltip.visible { opacity: 1; }
+    
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #6b7280;
+      font-size: 0.85rem;
+    }
+    
+    footer a {
+      color: #f59e0b;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>WNBA Shot Charts</h1>
+      <p class="subtitle">Interactive shooting visualization for top WNBA players</p>
+    </header>
+    
+    <div class="controls" id="playerButtons"></div>
+    
+    <div class="chart-container">
+      <div class="player-header">
+        <div class="player-name" id="playerName">Select a Player</div>
+        <div class="player-season" id="playerSeason"></div>
+      </div>
+      
+      <div class="stats-bar">
+        <div class="stat">
+          <div class="stat-value made" id="statMade">-</div>
+          <div class="stat-label">Made</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value missed" id="statMissed">-</div>
+          <div class="stat-label">Missed</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value pct" id="statPct">-</div>
+          <div class="stat-label">FG%</div>
+        </div>
+      </div>
+      
+      <div class="court-wrapper">
+        <div class="court">
+          <svg id="courtSvg" viewBox="0 0 500 470"></svg>
+        </div>
+      </div>
+      
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot made"></div> Made</div>
+        <div class="legend-item"><div class="legend-dot missed"></div> Missed</div>
+      </div>
+    </div>
+    
+    <footer>
+      Data from <a href="https://stats.nba.com" target="_blank">stats.nba.com</a> • 
+      Built with ❤️ for WNBA analytics
+    </footer>
+  </div>
+  
+  <div class="tooltip" id="tooltip"></div>
+  
+  <script>
+    // ============================================
+    // LOAD DATA FROM JSON FILE
+    // ============================================
+    let playerData = {};
+    const svg = document.getElementById('courtSvg');
+    const tooltip = document.getElementById('tooltip');
+    let currentPlayer = null;
+    
+    async function init() {
+      // Show loading state
+      document.getElementById('playerName').textContent = 'Loading...';
+      
+      try {
+        const response = await fetch('shot_data.json');
+        playerData = await response.json();
+        
+        createPlayerButtons();
+        drawCourt();
+        
+        // Load first player
+        const firstPlayer = Object.keys(playerData)[0];
+        selectPlayer(firstPlayer);
+      } catch (error) {
+        document.getElementById('playerName').textContent = 'Error loading data';
+        console.error('Failed to load shot_data.json:', error);
+      }
+    }
+    
+    function createPlayerButtons() {
+      const container = document.getElementById('playerButtons');
+      Object.keys(playerData).forEach(name => {
+        const btn = document.createElement('button');
+        btn.className = 'player-btn';
+        btn.textContent = name;
+        btn.onclick = () => selectPlayer(name);
+        container.appendChild(btn);
+      });
+    }
+    
+    function selectPlayer(name) {
+      currentPlayer = name;
+      const data = playerData[name];
+      
+      // Update buttons
+      document.querySelectorAll('.player-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === name);
+      });
+      
+      // Update header
+      document.getElementById('playerName').textContent = name;
+      document.getElementById('playerSeason').textContent = data.season + ' Season';
+      
+      // Update stats
+      document.getElementById('statMade').textContent = data.made;
+      document.getElementById('statMissed').textContent = data.total - data.made;
+      document.getElementById('statPct').textContent = data.pct + '%';
+      
+      // Draw shots
+      drawShots(data.shots);
+    }
+    
+    function drawCourt() {
+      const courtColor = '#f59e0b';
+      
+      // Court outline
+      const courtLines = `
+        <!-- Baseline -->
+        <line x1="20" y1="440" x2="480" y2="440" stroke="${courtColor}" stroke-width="2"/>
+        
+        <!-- Paint -->
+        <rect x="170" y="340" width="160" height="100" fill="none" stroke="${courtColor}" stroke-width="2"/>
+        
+        <!-- Free throw circle -->
+        <circle cx="250" cy="340" r="60" fill="none" stroke="${courtColor}" stroke-width="2"/>
+        
+        <!-- Basket -->
+        <circle cx="250" cy="425" r="7.5" fill="none" stroke="${courtColor}" stroke-width="2"/>
+        <line x1="220" y1="440" x2="280" y2="440" stroke="${courtColor}" stroke-width="3"/>
+        
+        <!-- 3-point line -->
+        <path d="M 30 440 L 30 340 Q 30 80 250 50 Q 470 80 470 340 L 470 440" fill="none" stroke="${courtColor}" stroke-width="2"/>
+        
+        <!-- Corner 3 lines -->
+        <line x1="30" y1="440" x2="30" y2="340" stroke="${courtColor}" stroke-width="2"/>
+        <line x1="470" y1="440" x2="470" y2="340" stroke="${courtColor}" stroke-width="2"/>
+      `;
+      
+      svg.innerHTML = courtLines + '<g id="shotsGroup"></g>';
+    }
+    
+    function drawShots(shots) {
+      const shotsGroup = document.getElementById('shotsGroup');
+      shotsGroup.innerHTML = '';
+      
+      shots.forEach((shot, i) => {
+        // Convert coordinates (API uses different scale)
+        const x = 250 + (shot.LOC_X * 0.95);
+        const y = 420 - (shot.LOC_Y * 0.9);
+        
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x);
+        circle.setAttribute('cy', y);
+        circle.setAttribute('r', 5);
+        circle.setAttribute('fill', shot.SHOT_RESULT === 'Made' ? '#22c55e' : '#ef4444');
+        circle.setAttribute('opacity', '0.75');
+        circle.style.cursor = 'pointer';
+        
+        circle.addEventListener('mouseenter', (e) => showTooltip(e, shot));
+        circle.addEventListener('mouseleave', hideTooltip);
+        
+        shotsGroup.appendChild(circle);
+      });
+    }
+    
+    function showTooltip(e, shot) {
+      tooltip.innerHTML = `
+        <strong>${shot.SHOT_RESULT}</strong><br>
+        ${shot.SHOT_ZONE_BASIC}<br>
+        <span style="color: #9ca3af">${shot.GAME_DATE}</span>
+      `;
+      tooltip.style.left = (e.clientX + 15) + 'px';
+      tooltip.style.top = (e.clientY - 10) + 'px';
+      tooltip.classList.add('visible');
+    }
+    
+    function hideTooltip() {
+      tooltip.classList.remove('visible');
+    }
+    
+    init();
+  </script>
+</body>
+</html>
