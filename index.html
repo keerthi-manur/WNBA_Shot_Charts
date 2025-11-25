@@ -375,9 +375,9 @@
       shotsGroup.innerHTML = '';
       
       shots.forEach((shot) => {
-        // Spread shots out more to match court lines
-        const x = 250 + (shot.LOC_X * 0.95);
-        const y = 437 - (shot.LOC_Y * 1.0);
+        // Spread shots out more aggressively
+        const x = 250 + (shot.LOC_X * 1.1);
+        const y = 437 - (shot.LOC_Y * 1.15);
         
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         circle.setAttribute('cx', x);
