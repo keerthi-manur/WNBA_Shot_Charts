@@ -355,11 +355,16 @@
         <circle cx="250" cy="437" r="7.5" fill="none" stroke="${c}" stroke-width="2"/>
         <line x1="228" y1="450" x2="272" y2="450" stroke="${c}" stroke-width="3"/>
         
-        <!-- 3-point line - smaller arc so 3pt shots are OUTSIDE -->
-        <path d="M 60 450 L 60 360 Q 60 140 250 115 Q 440 140 440 360 L 440 450" fill="none" stroke="${c}" stroke-width="2"/>
+        <!-- 3-point line - tighter arc, corner lines further in -->
+        <path d="M 85 450 L 85 330 Q 85 170 250 150 Q 415 170 415 330 L 415 450" fill="none" stroke="${c}" stroke-width="2"/>
         
         <!-- Baseline -->
-        <line x1="30" y1="450" x2="470" y2="450" stroke="${c}" stroke-width="2"/>
+        <line x1="25" y1="450" x2="475" y2="450" stroke="${c}" stroke-width="2"/>
+        
+        <!-- Side boundaries -->
+        <line x1="25" y1="450" x2="25" y2="30" stroke="${c}" stroke-width="2"/>
+        <line x1="475" y1="450" x2="475" y2="30" stroke="${c}" stroke-width="2"/>
+        <line x1="25" y1="30" x2="475" y2="30" stroke="${c}" stroke-width="2"/>
       `;
       
       svg.innerHTML = courtLines + '<g id="shotsGroup"></g>';
