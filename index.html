@@ -376,8 +376,8 @@
       
       shots.forEach((shot) => {
         // Spread shots out more aggressively
-        const x = 250 + (shot.LOC_X * 0.55);
-        const y = 437 - (shot.LOC_Y * 1.15);
+        const x = 250 + (shot.LOC_X * 0.85);
+        const y = 437 - (shot.LOC_Y * 0.95);
         
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         circle.setAttribute('cx', x);
